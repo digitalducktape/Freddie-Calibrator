@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Freddie_Calibration_Logo.jpg" width="100%" alt="Freddie Calibration Companion tool" />
+</p>
+
 # Freddie Calibration Assistant
 
 An independent, offline-capable calibration journal for Primera Freddie.
