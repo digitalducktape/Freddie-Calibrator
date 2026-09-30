@@ -17,3 +17,7 @@ notes, and companion heuristics. Disconnect power before maintenance.
 In repository Settings → Pages, choose Deploy from a branch, `main`, `/ (root)`.
 The root `index.html` is the application. No uploaded manuals or private batch
 records are included in this repository.
+
+## Use The Tool
+The tool can be accessed here:
+https://digitalducktape.github.io/Freddie-Calibrator/
