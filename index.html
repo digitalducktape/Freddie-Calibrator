@@ -74,6 +74,14 @@ code{padding:1px 5px}pre{padding:12px;white-space:pre-wrap;word-break:break-all}
 .verdict.ok{background:#e7f1e8;border:1px solid #b7cfbd}
 .verdict.warn{background:var(--warnbg);border:1px solid #e6c98f}
 :focus-visible{outline:3px solid #ce9434;outline-offset:3px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid #c9d5cb;margin:4px 0 22px}
+.tabs button{border:0;border-bottom:3px solid transparent;border-radius:10px 10px 0 0;background:transparent;padding:12px 18px;font-size:15px;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+.tabs button:hover{background:#e9eee6;color:var(--ink)}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--green);background:var(--paper)}
+.badge{background:#f3d9a6;color:#6b4310;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
+kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #c9d5cb;border-bottom-width:2px;border-radius:5px;padding:0 5px;background:white}
+.lognav{background:var(--warnbg);border-radius:10px;padding:10px 14px;font-size:14px}
+.credits{background:#f0f3eb;border-radius:12px;padding:14px 16px;margin:14px 0}
 @media(max-width:980px){.grid2{grid-template-columns:1fr}}
 @media(max-width:850px){.grid{grid-template-columns:1fr}main{padding:16px}.card{padding:18px}}
 @media(max-width:480px){.fields{grid-template-columns:1fr}}
@@ -97,20 +105,29 @@ code{padding:1px 5px}pre{padding:12px;white-space:pre-wrap;word-break:break-all}
   <div class="note">Independent tool, not Primera software. It can read FreddieView's log and edit its settings file on this PC, but it never talks to Freddie. <b>Close FreddieView before saving settings</b>, then reopen it to load them. Disconnect power before maintenance or changing parts; keep safety guards in place.</div>
   <div id="status" role="status" aria-live="polite"></div>
 
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="tab-calibrate" aria-controls="panel-calibrate" aria-selected="true">Calibrate</button>
+    <button role="tab" id="tab-log" aria-controls="panel-log" aria-selected="false" tabindex="-1">Log insights <span class="badge" id="logBadge" hidden></span></button>
+  </nav>
+
+  <div role="tabpanel" id="panel-calibrate" aria-labelledby="tab-calibrate">
   <section class="card" id="machine">
-    <h2>FreddieView files</h2>
-    <p class="sub">Connect <code>C:\ProgramData\PTI\FreddieVision</code> to read the log and today's results, and to save recommended settings straight into FreddieView. Folder access needs Edge or Chrome on the Freddie PC. Other browsers can open the files and download an edited copy.</p>
-    <div class="row">
-      <button class="primary" id="connect">Connect FreddieVision folder</button>
-      <button id="reconnect" hidden>Reconnect saved folder</button>
-      <button id="openFiles">Open files instead…</button>
-      <button id="refresh" hidden>Reload files</button>
-      <input type="file" id="pickFiles" multiple accept=".json,.log,application/json,text/plain" hidden>
-    </div>
-    <p class="sub" id="connInfo"></p>
-    <div class="grid2" style="margin-top:14px">
+    <div class="grid2">
+      <div>
+        <h2>FreddieView connection</h2>
+        <p class="sub">Connect <code>C:\ProgramData\PTI\FreddieVision</code> to read the log and save recommended settings straight into FreddieView (Edge or Chrome on the Freddie PC). Other browsers can open the files and download an edited copy.</p>
+        <div class="row">
+          <button class="primary" id="connect">Connect FreddieVision folder</button>
+          <button id="reconnect" hidden>Reconnect saved folder</button>
+          <button id="openFiles">Open files instead…</button>
+          <button id="refresh" hidden>Reload files</button>
+          <input type="file" id="pickFiles" multiple accept=".json,.log,application/json,text/plain" hidden>
+        </div>
+        <p class="sub" id="pathHint">Browsers can't open the folder picker at <code>C:\ProgramData</code> directly. When you click Connect, the path is copied for you: click the picker's address bar (or press <kbd>Ctrl</kbd>+<kbd>L</kbd>), paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>, press <kbd>Enter</kbd>, then <b>Select folder</b>. After the first time it opens there automatically.</p>
+        <p class="sub" id="connInfo"></p>
+        <p id="logNudge" hidden></p>
+      </div>
       <div id="cfgPane"><h3>Settings file</h3><p class="sub">Not loaded yet. Connect the folder or open <code>Persistence\visionsettingsWorkingCopy.json</code>.</p></div>
-      <div id="logPane"><h3>Log insights</h3><p class="sub">Not loaded yet. Connect the folder or open <code>FreddieVision.log</code>.</p></div>
     </div>
   </section>
 
@@ -183,6 +200,11 @@ code{padding:1px 5px}pre{padding:12px;white-space:pre-wrap;word-break:break-all}
     <p class="sub">Select a run to inspect its checks, notes and saved recommendation.</p>
     <div class="scroll"><table><thead><tr><th>Run / time</th><th>Type / result</th><th>Reading</th><th>Settle</th><th>Nozzle</th><th>Outline / flood</th><th>Edge / amount</th><th>Outcome</th><th>Details</th></tr></thead><tbody id="history"></tbody></table></div>
   </section>
+  </div>
+
+  <div role="tabpanel" id="panel-log" aria-labelledby="tab-log" hidden>
+    <section class="card"><div id="logPane"><h2>Log insights</h2><p class="sub">Not loaded yet. On the Calibrate tab, connect the FreddieVision folder or open <code>FreddieVision.log</code>.</p></div></section>
+  </div>
 </main>
 
 <dialog id="detail"><div id="detailBody"></div><button onclick="document.getElementById('detail').close()">Close</button></dialog>
@@ -204,7 +226,8 @@ code{padding:1px 5px}pre{padding:12px;white-space:pre-wrap;word-break:break-all}
 
 <dialog id="about">
   <h2>About &amp; manual guide</h2>
-  <p>Version 2.0 · Independent companion, not Primera software. No connection to Freddie, no automatic dispensing and no cloud storage. FreddieView on Windows remains the machine controller.</p>
+  <div class="credits"><b>Created by Ed Wolf</b> · <a href="https://github.com/digitalducktape" target="_blank" rel="noopener">github.com/digitalducktape</a><br>Made for the kitchen at <b>City Gal Bakes</b>. See what Freddie is icing at <a href="https://citygalbakes.com" target="_blank" rel="noopener">CityGalBakes.com</a>.</div>
+  <p>Version 2.1 · Independent companion, not Primera software. No connection to Freddie, no automatic dispensing and no cloud storage. FreddieView on Windows remains the machine controller.</p>
   <details open><summary>What's new in 2.0</summary><ul>
     <li><b>Reads FreddieView's log</b> (<code>C:\ProgramData\PTI\FreddieVision\FreddieVision.log</code>): calibration readings, setting changes, cookies iced, icing used, and machine or camera faults, per day.</li>
     <li><b>Edits FreddieView's settings</b> (<code>Persistence\visionsettingsWorkingCopy.json</code>): flood and outline pressure, relative icing amount and distance from edge. Only those numbers change; the rest of the file stays byte-for-byte identical. Every save first writes a backup to <code>FreddieVision\CalibratorBackups</code> (and keeps one in this browser), and <i>Undo last save</i> puts it back.</li>
@@ -817,7 +840,7 @@ async function loadFromFolder() {
     readText(fv.persist, 'visionsettingsWorkingCopy.json'), readText(fv.persist, 'FrostingCal.Bipart.json'),
     readText(fv.persist, 'settings.json'), fv.root !== fv.persist ? readText(fv.root, 'FreddieVision.log') : Promise.resolve(null)]);
   ingest({ settings, cal, app, log });
-  $('refresh').hidden = false; $('reconnect').hidden = true;
+  $('refresh').hidden = false; $('reconnect').hidden = true; $('pathHint').hidden = true;
   $('connInfo').textContent = `Connected to folder "${fv.root.name}". Saves write directly, with a backup in ${fv.root.name}\\CalibratorBackups.`;
 }
 
@@ -836,7 +859,16 @@ function ingest({ settings, cal, app, log }) {
 }
 
 $('connect').onclick = async () => {
-  try { const dir = await window.showDirectoryPicker({ id: 'freddievision', mode: 'readwrite' }); await useFolder(dir); idb.set('dir', dir); }
+  // Pickers can't be pointed at C:\ProgramData directly; copy the path so it can be pasted into the address bar.
+  const PATH = 'C:\\ProgramData\\PTI\\FreddieVision';
+  if (navigator.clipboard) navigator.clipboard.writeText(PATH).catch(() => { });
+  message('Path copied: in the folder picker press Ctrl+L, then Ctrl+V and Enter, then Select folder.');
+  const saved = await savedDirPromise;
+  try {
+    const opts = { id: 'freddievision', mode: 'readwrite' };
+    if (saved) opts.startIn = saved;
+    const dir = await window.showDirectoryPicker(opts); await useFolder(dir); idb.set('dir', dir);
+  }
   catch (e) {
     if (e.name === 'AbortError') message('No folder chosen. If your browser said the folder "contains system files", use Open files instead.');
     else message(e.message);
@@ -866,7 +898,8 @@ $('pickFiles').onchange = async e => {
   if (fv.mode !== 'folder') { fv.mode = 'files'; $('connInfo').textContent = 'Files opened read-only. Saving downloads an edited copy for you to put in place.'; }
   ingest(got);
 };
-(async () => { if (hasFS && await idb.get('dir')) { $('reconnect').hidden = false; } })();
+const savedDirPromise = hasFS ? idb.get('dir') : Promise.resolve(null);
+savedDirPromise.then(d => { if (d) { $('reconnect').hidden = false; $('pathHint').hidden = true; } });
 
 // ---------------- Settings pane ----------------
 function renderCfg() {
@@ -965,7 +998,7 @@ async function undoLast() {
 const hhmm = t => t.slice(6, 11);
 function renderLog() {
   const pane = $('logPane');
-  if (!fv.days.length) { pane.innerHTML = '<h3>Log insights</h3><p class="sub">Not loaded. Open <code>FreddieVision.log</code> from <code>C:\\ProgramData\\PTI\\FreddieVision</code>.</p>'; return; }
+  if (!fv.days.length) { pane.innerHTML = '<h2>Log insights</h2><p class="sub">Not loaded. On the Calibrate tab, connect the folder or open <code>FreddieVision.log</code> from <code>C:\\ProgramData\\PTI\\FreddieVision</code>.</p>'; return; }
   const d = fv.days.find(x => x.day === fv.day) || fv.days.at(-1);
   const faultKeys = Object.keys(Core.FAULTS).filter(k => d.faults[k]);
   const offline = (d.faults.offline || []).length + (d.faults.load || []).length;
@@ -978,21 +1011,30 @@ function renderLog() {
     else if (np && np.value != null && lastCal && np.value !== lastCal.pressure && !np.inconsistent) verdict = `<div class="verdict ok"><b>Next flood pressure to try: ${np.value}</b><br>${esc(np.reason)}<div class="row"><button class="small primary" id="goPressure" ${fv.settings ? '' : 'disabled'}>Save flood ${np.value} to FreddieView</button></div></div>`;
     else if (np) verdict = `<div class="verdict ok">${esc(np.reason)}</div>`;
   }
-  pane.innerHTML = `<h3>Log insights</h3>
-    <label>Day<select id="daySel">${fv.days.map(x => `<option ${x.day === d.day ? 'selected' : ''}>${esc(x.day)}</option>`).join('')}</select></label>
+  pane.innerHTML = `<div class="row" style="justify-content:space-between;margin:0 0 6px"><h2 style="margin:0">Log insights</h2><label style="min-width:160px">Day<select id="daySel">${fv.days.map(x => `<option ${x.day === d.day ? 'selected' : ''}>${esc(x.day)}</option>`).join('')}</select></label></div>
     <div class="stats" style="margin-top:12px">
       <div class="stat"><strong>${d.cookies.length}</strong>cookies iced</div>
       <div class="stat"><strong>${d.passes.length}/${d.calibration.length}</strong>calibrations passed</div>
       <div class="stat"><strong>${d.avgMl != null ? d.avgMl.toFixed(1) : '—'}</strong>avg ml / cookie</div>
       <div class="stat"><strong>${offline}</strong>offline / load failures</div>
     </div>
+    <div class="grid2"><div>
     ${verdict}
+    <h4>Calibration readings</h4>
     ${d.calibration.length ? readingsChart(d) : '<p class="sub">No calibration readings on this day.</p>'}
+    </div><div>
     ${faultKeys.length ? `<h4>Machine &amp; camera issues</h4><ul class="faults">${faultKeys.map(k => `<li><b>${esc(Core.FAULTS[k].label)} × ${d.faults[k].length}</b>${esc(Core.FAULTS[k].action)} <span class="sub">First at ${hhmm(d.faults[k][0])}.</span></li>`).join('')}</ul>${d.faults.powercycle ? `<p class="sub">FreddieView asked for a power-cycle ${d.faults.powercycle.length} times.</p>` : ''}` : ''}
     ${d.cookies.length ? `<details><summary>Cookies iced (${d.cookies.length}) · ${d.totalMl.toFixed(0)} ml total</summary><div class="scroll"><table><thead><tr><th>Time</th><th class="num">Flood</th><th class="num">Outline</th><th class="num">Amount</th><th class="num">Edge</th><th class="num">Icing ml</th><th class="num">Left ml</th></tr></thead><tbody>${d.cookies.map(c => `<tr><td>${hhmm(c.t)}</td>${['flood', 'outline'].map(k => `<td class="num">${c.settings[k] ?? '—'}</td>`).join('')}<td class="num">${c.settings.amount != null ? c.settings.amount + '%' : '—'}</td><td class="num">${c.settings.edge != null ? c.settings.edge.toFixed(2) : '—'}</td><td class="num">${c.ml.toFixed(1)}</td><td class="num">${c.remaining ?? '—'}</td></tr>`).join('')}</tbody></table></div><p class="sub">"—" means the value wasn't changed that day, so the log doesn't show it.</p></details>` : ''}
     ${d.changes.length || d.resets.length ? `<details><summary>Setting changes (${d.changes.length})${d.resets.length ? ' · factory resets ' + d.resets.length : ''}</summary><table><tbody>${[...d.changes.map(c => ({ t: c.t, s: `${Core.FIELDS[c.key].label}: ${c.key === 'amount' ? Math.round(c.from * 100) + '% → ' + Math.round(c.to * 100) + '%' : c.from + ' → ' + c.to}` })), ...d.resets.map(t => ({ t, s: 'Restore factory defaults' }))].sort((a, b) => a.t < b.t ? -1 : 1).map(x => `<tr><td>${hhmm(x.t)}</td><td>${esc(x.s)}</td></tr>`).join('')}</tbody></table></details>` : ''}
+    </div></div>
     <p class="sub">${d.starts.length} FreddieView start${d.starts.length === 1 ? '' : 's'} · ${d.calClicks} calibrate presses · ${d.startClicks} job starts.</p>`;
   $('daySel').onchange = e => { fv.day = e.target.value; renderLog(); updateFillButtons(); };
+  const issues = faultKeys.length + (rel.unreliable && rel.n >= 3 ? 1 : 0);
+  $('logBadge').hidden = !issues; $('logBadge').textContent = issues;
+  $('logBadge').title = issues + ' thing' + (issues === 1 ? '' : 's') + ' to look at';
+  const nudge = $('logNudge'); nudge.hidden = false; nudge.className = issues ? 'lognav' : 'sub';
+  nudge.innerHTML = `Log ${esc(d.day)}: ${d.cookies.length} cookies iced, ${d.passes.length}/${d.calibration.length} calibrations passed${rel.unreliable && rel.n >= 3 ? ', <b>readings inconsistent</b>' : ''}${faultKeys.length ? `, ${faultKeys.length} kind${faultKeys.length > 1 ? 's' : ''} of machine issue` : ''}. <a href="#log" id="toLog">Open Log insights →</a>`;
+  $('toLog').onclick = e => { e.preventDefault(); showTab('log'); };
   if ($('goTrial')) $('goTrial').onclick = () => setMode('trial');
   if ($('goPressure')) $('goPressure').onclick = () => applyPatch({ flood: np.value });
 }
@@ -1063,6 +1105,29 @@ $('fillCookie').onclick = () => {
   $('run').elements.outcome.focus();
   message(`Filled from the cookie iced at ${hhmm(c.t)}. Pick what the cookie looked like, then save.`);
 };
+
+// ---------------- Tabs ----------------
+const TABS = ['calibrate', 'log'];
+function showTab(name, focus) {
+  if (!TABS.includes(name)) name = 'calibrate';
+  for (const t of TABS) {
+    const on = t === name, b = $('tab-' + t);
+    b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; $('panel-' + t).hidden = !on;
+    if (on && focus) b.focus();
+  }
+  try { localStorage.setItem('freddie-tab', name); } catch { }
+  if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
+}
+TABS.forEach((t, i) => {
+  const b = $('tab-' + t);
+  b.onclick = () => showTab(t);
+  b.onkeydown = e => {
+    const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (d) { e.preventDefault(); showTab(TABS[(i + d + TABS.length) % TABS.length], true); }
+  };
+});
+window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+showTab(location.hash.slice(1) || (() => { try { return localStorage.getItem('freddie-tab'); } catch { return null; } })() || 'calibrate');
 
 if (!state.sessions.length) addSession('First batch'); else render();
 </script>

@@ -36,8 +36,9 @@ Open `index.html` or visit the GitHub Pages site. No build step or dependencies.
 ## Using it on the Freddie PC
 
 1. Open the site in **Edge or Chrome** on the Windows PC that runs FreddieView.
-2. Click **Connect FreddieVision folder** and choose `C:\ProgramData\PTI\FreddieVision`
-   (ProgramData is hidden; paste the path into the folder picker's address bar).
+2. Click **Connect FreddieVision folder**. The path `C:\ProgramData\PTI\FreddieVision` is
+   copied for you; browsers can't open the picker there directly, so press Ctrl+L, Ctrl+V,
+   Enter, then **Select folder**. After the first time the picker opens there automatically.
 3. **Close FreddieView before saving settings**, then reopen it; it reads the file at start-up.
 
 Other browsers, or a folder the browser refuses to open: use **Open files instead…**.
@@ -47,6 +48,13 @@ command that backs up the current file and copies the download into place.
 Editing FreddieView's files is not supported by Primera. Keep the backups, and use
 Undo or FreddieView's Restore Defaults if anything looks wrong. This app does not talk
 to Freddie. Disconnect power before maintenance.
+
+Log insights live on their own tab; a badge shows how many issues the selected day has.
+
+## Credits
+
+Created by Ed Wolf ([github.com/digitalducktape](https://github.com/digitalducktape)) for
+the kitchen at City Gal Bakes. See what Freddie is icing at [CityGalBakes.com](https://citygalbakes.com).
 
 ## GitHub Pages
 
