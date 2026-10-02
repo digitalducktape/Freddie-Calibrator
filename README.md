@@ -35,21 +35,27 @@ Open `index.html` or visit the GitHub Pages site. No build step or dependencies.
 
 ## Using it on the Freddie PC
 
-1. Open the site in **Edge or Chrome** on the Windows PC that runs FreddieView.
-2. Click **Connect FreddieVision folder**. The path `C:\ProgramData\PTI\FreddieVision` is
-   copied for you; browsers can't open the picker there directly, so press Ctrl+L, Ctrl+V,
-   Enter, then **Select folder**. After the first time the picker opens there automatically.
-3. **Close FreddieView before saving settings**, then reopen it; it reads the file at start-up.
+The app has three tabs: **1 Setup**, **2 Calibrate**, **3 Log insights**.
 
-Other browsers, or a folder the browser refuses to open: use **Open files instead…**.
-Saving then downloads the edited `visionsettingsWorkingCopy.json` and shows a PowerShell
-command that backs up the current file and copies the download into place.
+1. Open the site on the Windows PC that runs FreddieView.
+2. On **Setup**, click **Choose…** next to each file. The file's full path is copied for
+   you; in the Open window click **File name**, press Ctrl+V, then Enter (this works even
+   though `C:\ProgramData` is hidden).
+   - Settings file: `C:\ProgramData\PTI\FreddieVision\Persistence\visionsettingsWorkingCopy.json` (needed to change settings)
+   - Log: `C:\ProgramData\PTI\FreddieVision\FreddieVision.log`
+   - Optional: `Persistence\FrostingCal.Bipart.json`, `Persistence\settings.json`
+3. **Close FreddieView before saving settings.** Saving downloads the updated
+   `visionsettingsWorkingCopy.json` and shows a one-line PowerShell command that backs up
+   the current file to `FreddieVision\CalibratorBackups` and copies the new one into place.
+   Reopen FreddieView; it reads the file at start-up.
+
+Advanced: in Edge/Chrome you can instead connect the whole folder (Setup → Advanced) so
+saves go straight into FreddieView without a download. Some browsers refuse that folder;
+the file buttons always work.
 
 Editing FreddieView's files is not supported by Primera. Keep the backups, and use
 Undo or FreddieView's Restore Defaults if anything looks wrong. This app does not talk
 to Freddie. Disconnect power before maintenance.
-
-Log insights live on their own tab; a badge shows how many issues the selected day has.
 
 ## Credits
 

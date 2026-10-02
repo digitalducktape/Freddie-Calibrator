@@ -78,6 +78,17 @@ code{padding:1px 5px}pre{padding:12px;white-space:pre-wrap;word-break:break-all}
 .tabs button{border:0;border-bottom:3px solid transparent;border-radius:10px 10px 0 0;background:transparent;padding:12px 18px;font-size:15px;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
 .tabs button:hover{background:#e9eee6;color:var(--ink)}
 .tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--green);background:var(--paper)}
+.step{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#dfe7de;color:var(--ink);font-size:12px;font-weight:750}
+.tabs button[aria-selected=true] .step{background:var(--green);color:white}
+.slots{list-style:none;padding:0;margin:16px 0 8px;display:grid;gap:10px}
+.slots li{display:grid;grid-template-columns:1fr minmax(140px,auto) auto;gap:14px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:white}
+.slots li.done{border-color:#b7cfbd;background:#f4faf5}
+.slotState{font-size:13px;color:var(--muted)}
+.slots li.done .slotState{color:#1d6b3c;font-weight:600}
+.tag{font-size:11px;font-weight:650;color:var(--muted);background:#f0f3eb;border-radius:999px;padding:1px 8px;margin-left:4px}
+.tag.req{color:#6b4310;background:#f8e6c2}
+.calbar{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:18px;font-size:14px;display:grid;gap:8px}
+@media(max-width:700px){.tabs{overflow-x:auto}.tabs button{padding:10px 10px;font-size:14px;white-space:nowrap;flex:none}.slots li{grid-template-columns:1fr auto}.slots li .slotState{grid-column:1/-1;order:3}}
 .badge{background:#f3d9a6;color:#6b4310;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
 kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #c9d5cb;border-bottom-width:2px;border-radius:5px;padding:0 5px;background:white}
 .lognav{background:var(--warnbg);border-radius:10px;padding:10px 14px;font-size:14px}
@@ -105,32 +116,41 @@ kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #c9d5cb;border-bo
   <div class="note">Independent tool, not Primera software. It can read FreddieView's log and edit its settings file on this PC, but it never talks to Freddie. <b>Close FreddieView before saving settings</b>, then reopen it to load them. Disconnect power before maintenance or changing parts; keep safety guards in place.</div>
   <div id="status" role="status" aria-live="polite"></div>
 
-  <nav class="tabs" role="tablist" aria-label="Views">
-    <button role="tab" id="tab-calibrate" aria-controls="panel-calibrate" aria-selected="true">Calibrate</button>
-    <button role="tab" id="tab-log" aria-controls="panel-log" aria-selected="false" tabindex="-1">Log insights <span class="badge" id="logBadge" hidden></span></button>
+  <nav class="tabs" role="tablist" aria-label="Steps">
+    <button role="tab" id="tab-setup" aria-controls="panel-setup" aria-selected="true"><span class="step">1</span>Setup</button>
+    <button role="tab" id="tab-calibrate" aria-controls="panel-calibrate" aria-selected="false" tabindex="-1"><span class="step">2</span>Calibrate</button>
+    <button role="tab" id="tab-log" aria-controls="panel-log" aria-selected="false" tabindex="-1"><span class="step">3</span>Log insights <span class="badge" id="logBadge" hidden></span></button>
   </nav>
 
-  <div role="tabpanel" id="panel-calibrate" aria-labelledby="tab-calibrate">
+  <div role="tabpanel" id="panel-setup" aria-labelledby="tab-setup">
   <section class="card" id="machine">
-    <div class="grid2">
-      <div>
-        <h2>FreddieView connection</h2>
-        <p class="sub">Connect <code>C:\ProgramData\PTI\FreddieVision</code> to read the log and save recommended settings straight into FreddieView (Edge or Chrome on the Freddie PC). Other browsers can open the files and download an edited copy.</p>
-        <div class="row">
-          <button class="primary" id="connect">Connect FreddieVision folder</button>
-          <button id="reconnect" hidden>Reconnect saved folder</button>
-          <button id="openFiles">Open files instead…</button>
-          <button id="refresh" hidden>Reload files</button>
-          <input type="file" id="pickFiles" multiple accept=".json,.log,application/json,text/plain" hidden>
-        </div>
-        <p class="sub" id="pathHint">Browsers can't open the folder picker at <code>C:\ProgramData</code> directly. When you click Connect, the path is copied for you: click the picker's address bar (or press <kbd>Ctrl</kbd>+<kbd>L</kbd>), paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>, press <kbd>Enter</kbd>, then <b>Select folder</b>. After the first time it opens there automatically.</p>
-        <p class="sub" id="connInfo"></p>
-        <p id="logNudge" hidden></p>
+    <h2>Load FreddieView's files</h2>
+    <p class="sub">FreddieView keeps its files in the hidden folder <code>C:\ProgramData\PTI\FreddieVision</code>. Click <b>Choose</b> and that file's full path is copied for you. In the Open window, click the <b>File name</b> box, paste with <kbd>Ctrl</kbd>+<kbd>V</kbd> and press <kbd>Enter</kbd>.</p>
+    <ol class="slots">
+      <li><div><b>Settings file</b> <span class="tag req">needed to change settings</span><br><code>Persistence\visionsettingsWorkingCopy.json</code></div><span class="slotState" id="st-settings">Not loaded</span><button class="primary" data-pick="settings">Choose…</button></li>
+      <li><div><b>Log</b> <span class="tag">for Log insights and pressure steps</span><br><code>FreddieVision.log</code></div><span class="slotState" id="st-log">Not loaded</span><button data-pick="log">Choose…</button></li>
+      <li><div><b>Last calibration</b> <span class="tag">optional</span><br><code>Persistence\FrostingCal.Bipart.json</code></div><span class="slotState" id="st-cal">Not loaded</span><button data-pick="cal">Choose…</button></li>
+      <li><div><b>Pass-window limits</b> <span class="tag">optional</span><br><code>Persistence\settings.json</code></div><span class="slotState" id="st-app">Not loaded</span><button data-pick="app">Choose…</button></li>
+    </ol>
+    <input type="file" id="pickOne" accept=".json,.log,application/json,text/plain" hidden>
+    <input type="file" id="pickFiles" multiple accept=".json,.log,application/json,text/plain" hidden>
+    <div class="row"><button id="openFiles">Select several at once…</button><span class="sub" id="connInfo">Saving downloads an updated settings file and gives you a one-line command to put it in place.</span></div>
+    <details id="advanced"><summary>Advanced: save directly into FreddieView (Edge/Chrome, folder access)</summary>
+      <p class="sub">Some browsers allow connecting the whole folder so saves go straight into FreddieView without a download. If your browser refuses the folder (for example "contains system files"), stay with the file buttons above.</p>
+      <div class="row">
+        <button id="connect">Connect FreddieVision folder</button>
+        <button id="reconnect" hidden>Reconnect saved folder</button>
+        <button id="refresh" hidden>Reload files</button>
       </div>
-      <div id="cfgPane"><h3>Settings file</h3><p class="sub">Not loaded yet. Connect the folder or open <code>Persistence\visionsettingsWorkingCopy.json</code>.</p></div>
-    </div>
+      <p class="sub" id="pathHint">The folder path is copied when you click Connect: in the picker press <kbd>Ctrl</kbd>+<kbd>L</kbd>, paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>, press <kbd>Enter</kbd>, then <b>Select folder</b>.</p>
+    </details>
   </section>
+  <section class="card"><div id="cfgPane"><h2>Settings</h2><p class="sub">Load the settings file above to see and change what FreddieView uses.</p></div></section>
+  <div class="row" style="justify-content:flex-end;margin-bottom:24px"><button class="primary" id="toCalibrate">Next: record a run →</button></div>
+  </div>
 
+  <div role="tabpanel" id="panel-calibrate" aria-labelledby="tab-calibrate" hidden>
+  <div class="calbar" id="calStatus"></div>
   <div class="grid">
     <section class="card">
       <h2>Record a run</h2>
@@ -653,7 +673,7 @@ const BEADS = ['unknown', 'good', 'spread', 'ridge', 'broken'];
 const OUTCOMES = ['none', 'good', 'overflow', 'gaps', 'lines', 'spirals', 'excess', 'outlineThin', 'outlineBleed', 'shape', 'machine', 'other'];
 const OUTCOME_TEXT = { none: 'no test', good: 'good', overflow: 'over edge', gaps: 'gaps', lines: 'spiral lines', spirals: 'missing spirals', excess: 'too much', outlineThin: 'thin outline', outlineBleed: 'outline bleeds', shape: 'wrong shape', machine: 'machine error', other: 'other' };
 let state = { version: 2, active: '', sessions: [] };
-const fv = { root: null, persist: null, mode: 'none', settingsText: null, settings: null, cal: null, limits: { lo: 0.19, hi: 0.29 }, days: [], day: null };
+const fv = { fileTimes: {}, limitsLoaded: false, root: null, persist: null, mode: 'none', settingsText: null, settings: null, cal: null, limits: { lo: 0.19, hi: 0.29 }, days: [], day: null };
 
 function message(s) { $('status').textContent = s; }
 function current() { return state.sessions.find(s => s.id === state.active); }
@@ -720,8 +740,8 @@ function patchButtons(container, patch) {
   }
   if (Object.keys(filePatch).length) {
     const b = document.createElement('button'); b.className = 'primary';
-    b.textContent = fv.mode === 'none' ? 'Save to FreddieView… (connect files first)' : 'Save to FreddieView settings';
-    b.disabled = fv.mode === 'none' || !fv.settings;
+    b.textContent = !fv.settings ? 'Save to FreddieView (load the settings file in Setup first)' : fv.mode === 'folder' ? 'Save to FreddieView settings' : 'Download updated settings file';
+    b.disabled = !fv.settings;
     b.onclick = () => applyPatch(filePatch);
     row.append(b);
   }
@@ -766,7 +786,7 @@ function showRun(r, n) {
 }
 
 function setMode(mode) {
-  const s = current(); s.mode = mode; persist(); render();
+  const s = current(); s.mode = mode; persist(); render(); renderLog(); renderCalStatus();
   message(mode === 'trial' ? 'This batch now uses trial & error. Ice one cookie and record what you see.' : 'This batch now uses calibration-guided tuning.');
 }
 document.querySelectorAll('input[name=mode]').forEach(i => i.onchange = () => setMode(i.value));
@@ -812,104 +832,153 @@ $('file').onchange = async e => {
 };
 
 // ---------------- FreddieView files ----------------
+const BASE = 'C:\\ProgramData\\PTI\\FreddieVision';
+const PATHS = { settings: BASE + '\\Persistence\\visionsettingsWorkingCopy.json', log: BASE + '\\FreddieVision.log', cal: BASE + '\\Persistence\\FrostingCal.Bipart.json', app: BASE + '\\Persistence\\settings.json' };
+const SLOT_NAMES = { settings: 'settings file', log: 'log', cal: 'last calibration file', app: 'limits file (settings.json)' };
 const hasFS = 'showDirectoryPicker' in window;
-if (!hasFS) { $('connect').hidden = true; $('connInfo').textContent = 'This browser can\'t open folders. Use "Open files instead" and the tool will download edited settings for you to copy into place.'; }
+if (!hasFS) $('advanced').hidden = true;
+const copy = t => { try { navigator.clipboard && navigator.clipboard.writeText(t).catch(() => { }); } catch { } };
 
-// Remember the folder handle between visits (IndexedDB; optional).
+// Work out what a file is from its contents, so a file chosen in the "wrong" slot still lands in the right place.
+function detectKind(text) {
+  const head = text.slice(0, 4000);
+  if (/^\uFEFF?\d\d-\d\d \d\d:\d\d:\d\d/m.test(head)) return 'log';
+  try {
+    const j = JSON.parse(text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text);
+    if (j && Array.isArray(j.Settings)) return 'settings';
+    if (j && 'TargetFloodPressure' in j) return 'cal';
+    if (Array.isArray(j) && j.some(x => x && 'Key' in x)) return 'app';
+  } catch { }
+  return null;
+}
+
+async function readPicked(fileList, wanted) {
+  const got = {}, notes = [];
+  for (const f of fileList) {
+    if (f.size > 50e6) { notes.push(f.name + ' is too large.'); continue; }
+    const text = await f.text(), kind = detectKind(text);
+    if (!kind) { notes.push(`${f.name} isn't a FreddieView file I recognize.`); continue; }
+    if (wanted && kind !== wanted) notes.push(`${f.name} is FreddieView's ${SLOT_NAMES[kind]}, so it was loaded as that.`);
+    got[kind] = text; fv.fileTimes[kind] = f.lastModified;
+  }
+  if (Object.keys(got).length) { if (fv.mode !== 'folder') fv.mode = 'files'; ingest(got, notes); }
+  else message(notes.join(' ') || 'No file chosen.');
+}
+
+let pickSlot = null;
+document.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => {
+  pickSlot = b.dataset.pick;
+  copy(PATHS[pickSlot]);
+  message(`Path copied. In the Open window, click "File name", press Ctrl+V, then Enter: ${PATHS[pickSlot]}`);
+  $('pickOne').click();
+});
+$('pickOne').onchange = async e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) await readPicked(files, pickSlot); };
+$('openFiles').onclick = () => { copy(BASE); message('Folder path copied. In the Open window paste it into "File name" and press Enter to jump there, then select the files.'); $('pickFiles').click(); };
+$('pickFiles').onchange = async e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) await readPicked(files, null); };
+
+function renderSlots() {
+  const t = k => fv.fileTimes[k] ? ` · file saved ${new Date(fv.fileTimes[k]).toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' })}` : '';
+  const v = fv.settings && fv.settings.values;
+  const state = {
+    settings: v && `✓ Flood ${v.flood ?? 'default'} · outline ${v.outline ?? 'default'}${t('settings')}`,
+    log: fv.days.length && `✓ ${fv.days.length} day${fv.days.length > 1 ? 's' : ''}, latest ${fv.days.at(-1).day}${t('log')}`,
+    cal: fv.cal && `✓ Flood ${fv.cal.floodPressure ?? '—'} / outline ${fv.cal.outlinePressure ?? '—'}`,
+    app: fv.limitsLoaded && `✓ Pass window ${fv.limits.lo}–${fv.limits.hi}"`
+  };
+  for (const k of Object.keys(PATHS)) {
+    $('st-' + k).textContent = state[k] || 'Not loaded';
+    $('st-' + k).closest('li').classList.toggle('done', !!state[k]);
+    const b = document.querySelector(`[data-pick="${k}"]`);
+    b.textContent = state[k] ? 'Replace…' : 'Choose…';
+  }
+}
+
+function renderCalStatus() {
+  const bar = $('calStatus'), v = fv.settings && fv.settings.values;
+  let html = v
+    ? `<div>FreddieView settings: flood <b>${v.flood ?? 'default'}</b> · outline <b>${v.outline ?? 'default'}</b> · amount <b>${v.amount != null ? v.amount + '%' : 'default'}</b> · edge <b>${v.edge != null ? v.edge.toFixed(2) + ' in' : 'default'}</b>. <a href="#setup" data-tab="setup">Change in Setup</a></div>`
+    : `<div><b>Start in Setup:</b> load FreddieView's settings file so recommendations can be saved straight to FreddieView. <a href="#setup" data-tab="setup">Go to Setup →</a></div>`;
+  const d = fv.days.find(x => x.day === fv.day);
+  if (d) {
+    const rel = Core.analyzeReadings(d.calibration), faults = Object.keys(Core.FAULTS).filter(k => d.faults[k]).length;
+    const warn = (rel.unreliable && rel.n >= 3) || faults;
+    html += `<div class="${warn ? 'lognav' : ''}">Log ${esc(d.day)}: ${d.cookies.length} cookies iced, ${d.passes.length}/${d.calibration.length} calibrations passed${rel.unreliable && rel.n >= 3 ? ', <b>readings inconsistent</b>' : ''}${faults ? `, ${faults} kind${faults > 1 ? 's' : ''} of machine issue` : ''}. <a href="#log" data-tab="log">Open Log insights →</a></div>`;
+  }
+  bar.innerHTML = html;
+  bar.querySelectorAll('[data-tab]').forEach(a => a.onclick = e => { e.preventDefault(); showTab(a.dataset.tab); });
+}
+
+// ----- Advanced: whole-folder access (File System Access API) -----
 const idb = (() => {
   const open = () => new Promise((res, rej) => { const q = indexedDB.open('freddie-companion', 1); q.onupgradeneeded = () => q.result.createObjectStore('kv'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  const timeout = (p, ms) => Promise.race([p, new Promise(r => setTimeout(() => r(null), ms))]);
   return {
-    async get(k) { try { const db = await open(); return await new Promise(r => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(null); }); } catch { return null; } },
+    get: k => timeout((async () => { try { const db = await open(); return await new Promise(r => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(null); }); } catch { return null; } })(), 1500),
     async set(k, v) { try { const db = await open(); db.transaction('kv', 'readwrite').objectStore('kv').put(v, k); } catch { } }
   };
 })();
-
 async function readText(dir, name) { try { return await (await (await dir.getFileHandle(name)).getFile()).text(); } catch { return null; } }
-
 async function useFolder(dir) {
   let persistDir = null;
   try { persistDir = await dir.getDirectoryHandle('Persistence'); } catch { }
   if (!persistDir && await readText(dir, 'visionsettingsWorkingCopy.json') != null) persistDir = dir;
-  if (!persistDir) throw Error('That folder doesn\'t look like FreddieView\'s data folder. Choose C:\\ProgramData\\PTI\\FreddieVision.');
+  if (!persistDir) throw Error(`"${dir.name}" doesn't look like FreddieView's data folder. Choose ${BASE}, or use the file buttons.`);
   fv.root = dir; fv.persist = persistDir; fv.mode = 'folder';
   await loadFromFolder();
 }
-
 async function loadFromFolder() {
   const [settings, cal, app, log] = await Promise.all([
     readText(fv.persist, 'visionsettingsWorkingCopy.json'), readText(fv.persist, 'FrostingCal.Bipart.json'),
     readText(fv.persist, 'settings.json'), fv.root !== fv.persist ? readText(fv.root, 'FreddieVision.log') : Promise.resolve(null)]);
   ingest({ settings, cal, app, log });
   $('refresh').hidden = false; $('reconnect').hidden = true; $('pathHint').hidden = true;
-  $('connInfo').textContent = `Connected to folder "${fv.root.name}". Saves write directly, with a backup in ${fv.root.name}\\CalibratorBackups.`;
+  $('connInfo').textContent = `Connected to folder "${fv.root.name}": saves go straight into FreddieView, with a backup in ${fv.root.name}\\CalibratorBackups.`;
 }
-
-function ingest({ settings, cal, app, log }) {
-  const problems = [];
-  if (settings != null) { try { fv.settings = Core.readSettings(settings); fv.settingsText = settings; } catch (e) { problems.push('Settings file: ' + e.message); } }
-  if (cal != null) { try { fv.cal = Core.readFrostingCal(cal); } catch (e) { problems.push('FrostingCal: ' + e.message); } }
-  if (app != null) { try { fv.limits = Core.readLimits(app) || fv.limits; } catch { } }
-  if (log != null) {
-    try { fv.days = Core.parseLog(log); fv.day = fv.days.at(-1)?.day || null; if (!fv.days.length) problems.push('The log contained no FreddieView entries.'); }
-    catch (e) { problems.push('Log: ' + e.message); }
-  }
-  renderCfg(); renderLog(); updateFillButtons();
-  if (current().runs.length) { const s = current(); s.runs.at(-1).plan = planFor(s.runs.at(-1), s.runs.slice(0, -1)); persist(); render(); }
-  message(problems.length ? problems.join(' ') : 'FreddieView files loaded.');
-}
-
+let savedDir = null;
+if (hasFS) idb.get('dir').then(d => { if (d) { savedDir = d; $('reconnect').hidden = false; } });
 $('connect').onclick = async () => {
-  // Pickers can't be pointed at C:\ProgramData directly; copy the path so it can be pasted into the address bar.
-  const PATH = 'C:\\ProgramData\\PTI\\FreddieVision';
-  if (navigator.clipboard) navigator.clipboard.writeText(PATH).catch(() => { });
-  message('Path copied: in the folder picker press Ctrl+L, then Ctrl+V and Enter, then Select folder.');
-  const saved = await savedDirPromise;
-  try {
-    const opts = { id: 'freddievision', mode: 'readwrite' };
-    if (saved) opts.startIn = saved;
-    const dir = await window.showDirectoryPicker(opts); await useFolder(dir); idb.set('dir', dir);
-  }
+  copy(BASE);
+  const opts = { id: 'freddievision', mode: 'readwrite' };
+  if (savedDir) opts.startIn = savedDir;
+  try { const dir = await window.showDirectoryPicker(opts); await useFolder(dir); idb.set('dir', dir); savedDir = dir; }
   catch (e) {
-    if (e.name === 'AbortError') message('No folder chosen. If your browser said the folder "contains system files", use Open files instead.');
-    else message(e.message);
+    if (e.name === 'AbortError') message('No folder connected. That\'s fine: use the file buttons above, and saving will download the updated file instead.');
+    else message('Folder access didn\'t work (' + (e.message || e.name) + '). Use the file buttons above instead.');
   }
 };
 $('reconnect').onclick = async () => {
   try {
-    const dir = await idb.get('dir'); if (!dir) return;
-    if ((await dir.requestPermission({ mode: 'readwrite' })) !== 'granted') throw Error('Permission was not granted.');
-    await useFolder(dir);
-  } catch (e) { message('Could not reconnect: ' + e.message); }
+    if (!savedDir) return;
+    if ((await savedDir.requestPermission({ mode: 'readwrite' })) !== 'granted') throw Error('permission was not granted');
+    await useFolder(savedDir);
+  } catch (e) { message('Could not reconnect: ' + e.message + '. Use the file buttons instead.'); }
 };
 $('refresh').onclick = async () => { try { if (fv.mode === 'folder') await loadFromFolder(); } catch (e) { message(e.message); } };
-$('openFiles').onclick = () => $('pickFiles').click();
-$('pickFiles').onchange = async e => {
-  const got = {};
-  for (const f of e.target.files) {
-    const n = f.name.toLowerCase();
-    if (f.size > 50e6) { message(f.name + ' is too large.'); continue; }
-    if (n.endsWith('.log')) got.log = await f.text();
-    else if (n.startsWith('visionsettingsworkingcopy')) got.settings = await f.text();
-    else if (n.startsWith('frostingcal')) got.cal = await f.text();
-    else if (n === 'settings.json') got.app = await f.text();
+
+function ingest({ settings, cal, app, log }, notes = []) {
+  const problems = [...notes];
+  if (settings != null) { try { fv.settings = Core.readSettings(settings); fv.settingsText = settings; } catch (e) { problems.push('Settings file: ' + e.message); } }
+  if (cal != null) { try { fv.cal = Core.readFrostingCal(cal); } catch (e) { problems.push('Last calibration file: ' + e.message); } }
+  if (app != null) { try { const l = Core.readLimits(app); if (l) { fv.limits = l; fv.limitsLoaded = true; } } catch { } }
+  if (log != null) {
+    try { fv.days = Core.parseLog(log); fv.day = fv.days.at(-1)?.day || null; if (!fv.days.length) problems.push('The log contained no FreddieView entries.'); }
+    catch (e) { problems.push('Log: ' + e.message); }
   }
-  e.target.value = '';
-  if (!Object.keys(got).length) { message('Pick FreddieVision.log and/or visionsettingsWorkingCopy.json (FrostingCal.Bipart.json and settings.json are optional).'); return; }
-  if (fv.mode !== 'folder') { fv.mode = 'files'; $('connInfo').textContent = 'Files opened read-only. Saving downloads an edited copy for you to put in place.'; }
-  ingest(got);
-};
-const savedDirPromise = hasFS ? idb.get('dir') : Promise.resolve(null);
-savedDirPromise.then(d => { if (d) { $('reconnect').hidden = false; $('pathHint').hidden = true; } });
+  renderSlots(); renderCfg(); renderLog(); renderCalStatus(); updateFillButtons();
+  if (current().runs.length) { const s = current(); s.runs.at(-1).plan = planFor(s.runs.at(-1), s.runs.slice(0, -1)); persist(); render(); }
+  const loaded = [settings != null && fv.settings && 'settings', log != null && fv.days.length && 'log', cal != null && fv.cal && 'last calibration', app != null && fv.limitsLoaded && 'limits'].filter(Boolean);
+  message((loaded.length ? 'Loaded: ' + loaded.join(', ') + '. ' : '') + problems.join(' '));
+}
 
 // ---------------- Settings pane ----------------
 function renderCfg() {
   const pane = $('cfgPane');
-  if (!fv.settings) { pane.innerHTML = '<h3>Settings file</h3><p class="sub">Not loaded. Open <code>Persistence\\visionsettingsWorkingCopy.json</code>.</p>' + calHTML(); return; }
+  if (!fv.settings) { pane.innerHTML = '<h2>Settings</h2><p class="sub">Load the settings file above to see and change what FreddieView uses.</p>' + calHTML(); return; }
   const v = fv.settings.values, F = Core.FIELDS;
   const backups = loadBackups();
-  pane.innerHTML = `<h3>Settings file</h3><p class="sub">What FreddieView will use next time it opens. Edit a value and save; unchanged values aren't touched.</p>
+  pane.innerHTML = `<h2>Settings</h2><p class="sub">What FreddieView will use next time it opens. Change a value and save; values you don't change aren't touched.${fv.mode === 'files' ? ' Saving downloads the updated file and shows a one-line command to put it in place.' : ''}</p>
     <div class="scroll"><table class="cfg"><thead><tr><th>Setting</th><th>In file now</th><th>New value</th></tr></thead><tbody>${FILE_KEYS.map(k => `<tr><td>${esc(F[k].label)}${F[k].unit ? ' · ' + F[k].unit : ''}</td><td class="num">${v[k] == null ? '<span class="sub">default</span>' : esc(v[k])}</td><td><input data-k="${k}" type="number" min="${F[k].min}" max="${F[k].max}" step="${F[k].step}" value="${v[k] ?? ''}" placeholder="default" aria-label="New ${esc(F[k].label)}"></td></tr>`).join('')}</tbody></table></div>
-    <div class="row"><button class="primary" id="cfgSave" disabled>Save changes to FreddieView</button><button id="cfgUndo" ${backups.length ? '' : 'disabled'}>Undo last save</button></div>
+    <div class="row"><button class="primary" id="cfgSave" disabled>${fv.mode === 'folder' ? 'Save changes to FreddieView' : 'Download updated settings file'}</button><button id="cfgUndo" ${backups.length ? '' : 'disabled'}>Undo last save</button></div>
     <p class="sub" id="cfgHint">"default" means the value isn't in the file and FreddieView uses its built-in default.${backups.length ? ' Last backup: ' + esc(new Date(backups[0].time).toLocaleString()) + '.' : ''}</p>
     <details><summary>Everything in the Settings list (${fv.settings.all.length})</summary><table style="white-space:normal"><tbody>${fv.settings.all.map(x => `<tr><td>${esc(x.name)}</td><td class="num">${esc(typeof x.value === 'number' ? +x.value.toFixed(4) : JSON.stringify(x.value))}</td></tr>`).join('')}</tbody></table></details>` + calHTML();
   const inputs = [...pane.querySelectorAll('input[data-k]')];
@@ -1007,7 +1076,7 @@ function renderLog() {
   const lastCal = d.calibration.at(-1);
   let verdict = '';
   if (d.calibration.length) {
-    if (rel.unreliable && rel.n >= 3) verdict = `<div class="verdict warn"><b>Calibration readings are inconsistent; more calibrating won't converge.</b><br>${esc(Core.describeReliability(rel))}<div class="row"><button class="small primary" id="goTrial">Switch batch to trial &amp; error</button></div></div>`;
+    if (rel.unreliable && rel.n >= 3) verdict = `<div class="verdict warn"><b>Calibration readings are inconsistent; more calibrating won't converge.</b><br>${esc(Core.describeReliability(rel))}<div class="row">${current().mode === 'trial' ? `<span><b>✓ This batch is using trial &amp; error.</b></span><button class="small" id="goCal">Go to Calibrate →</button>` : '<button class="small primary" id="goTrial">Switch batch to trial &amp; error</button>'}</div></div>`;
     else if (np && np.value != null && lastCal && np.value !== lastCal.pressure && !np.inconsistent) verdict = `<div class="verdict ok"><b>Next flood pressure to try: ${np.value}</b><br>${esc(np.reason)}<div class="row"><button class="small primary" id="goPressure" ${fv.settings ? '' : 'disabled'}>Save flood ${np.value} to FreddieView</button></div></div>`;
     else if (np) verdict = `<div class="verdict ok">${esc(np.reason)}</div>`;
   }
@@ -1032,10 +1101,9 @@ function renderLog() {
   const issues = faultKeys.length + (rel.unreliable && rel.n >= 3 ? 1 : 0);
   $('logBadge').hidden = !issues; $('logBadge').textContent = issues;
   $('logBadge').title = issues + ' thing' + (issues === 1 ? '' : 's') + ' to look at';
-  const nudge = $('logNudge'); nudge.hidden = false; nudge.className = issues ? 'lognav' : 'sub';
-  nudge.innerHTML = `Log ${esc(d.day)}: ${d.cookies.length} cookies iced, ${d.passes.length}/${d.calibration.length} calibrations passed${rel.unreliable && rel.n >= 3 ? ', <b>readings inconsistent</b>' : ''}${faultKeys.length ? `, ${faultKeys.length} kind${faultKeys.length > 1 ? 's' : ''} of machine issue` : ''}. <a href="#log" id="toLog">Open Log insights →</a>`;
-  $('toLog').onclick = e => { e.preventDefault(); showTab('log'); };
-  if ($('goTrial')) $('goTrial').onclick = () => setMode('trial');
+  renderCalStatus();
+  if ($('goTrial')) $('goTrial').onclick = () => { setMode('trial'); showTab('calibrate'); message(`Batch "${current().name}" now uses trial & error. Ice one cookie, then record what you see below.`); };
+  if ($('goCal')) $('goCal').onclick = () => showTab('calibrate');
   if ($('goPressure')) $('goPressure').onclick = () => applyPatch({ flood: np.value });
 }
 
@@ -1107,9 +1175,9 @@ $('fillCookie').onclick = () => {
 };
 
 // ---------------- Tabs ----------------
-const TABS = ['calibrate', 'log'];
+const TABS = ['setup', 'calibrate', 'log'];
 function showTab(name, focus) {
-  if (!TABS.includes(name)) name = 'calibrate';
+  if (!TABS.includes(name)) name = 'setup';
   for (const t of TABS) {
     const on = t === name, b = $('tab-' + t);
     b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; $('panel-' + t).hidden = !on;
@@ -1127,7 +1195,9 @@ TABS.forEach((t, i) => {
   };
 });
 window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
-showTab(location.hash.slice(1) || (() => { try { return localStorage.getItem('freddie-tab'); } catch { return null; } })() || 'calibrate');
+$('toCalibrate').onclick = () => { showTab('calibrate'); window.scrollTo({ top: $('tab-calibrate').offsetTop - 12, behavior: 'smooth' }); };
+showTab(location.hash.slice(1) || (() => { try { return localStorage.getItem('freddie-tab'); } catch { return null; } })() || 'setup');
+renderSlots(); renderCalStatus();
 
 if (!state.sessions.length) addSession('First batch'); else render();
 </script>
