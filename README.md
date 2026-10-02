@@ -4,17 +4,49 @@
 
 # Freddie Calibration Assistant
 
-An independent, offline-capable calibration journal for Primera Freddie.
+An independent, offline-capable calibration journal for Primera Freddie that can
+also read FreddieView's log and edit its settings file.
 Open `index.html` or visit the GitHub Pages site. No build step or dependencies.
 
-Record each calibration or icing trial to receive one prioritized next step.
-Batch history and settle-time trends stay in browser local storage. Export JSON
-backups regularly. Local-file history and hosted-site history are separate;
-use Export/Import to transfer records.
+## What it does
 
-Machine settings must be entered manually in Windows FreddieView. This app
-does not connect to Freddie. About & Help documents manual sections, safety
-notes, and companion heuristics. Disconnect power before maintenance.
+- **Run journal with one next step.** Record each calibration or icing trial
+  and get one prioritized recommendation. Batch history stays in browser local
+  storage; export JSON backups regularly.
+- **Reads the FreddieView log** (`C:\ProgramData\PTI\FreddieVision\FreddieVision.log`).
+  For each day you get calibration readings plotted against flood pressure, cookies iced,
+  icing used per cookie, the settings in effect for each cookie, setting changes,
+  factory resets, and machine/camera faults with what to do about them.
+- **Edits FreddieView's settings** (`Persistence\visionsettingsWorkingCopy.json`):
+  flood pressure, outline pressure, relative icing amount and distance from edge.
+  Only those numbers change; every other byte of the file is left as-is. Each save
+  first writes a backup to `FreddieVision\CalibratorBackups` (and keeps one in the
+  browser), and **Undo last save** restores it.
+- **Smarter pressure steps.** FreddieView says "too thin, decrease pressure" when a
+  reading is above its pass window (0.19–0.29" by default, read from `settings.json`)
+  and "too thick, increase" below it. The companion brackets between the highest
+  pressure that read too thick and the lowest that read too thin and suggests the midpoint.
+- **Reliability check.** If readings contradict each other (too thick at a higher
+  pressure than one that read too thin, or readings over 1"), it stops recommending
+  more calibration and suggests trial & error instead.
+- **Trial & error mode.** Skip calibration: ice one cookie, record what you see
+  (runs over edge, gaps, spiral lines, pooling, thin or bleeding outline…) and the
+  companion changes one setting per cookie.
+
+## Using it on the Freddie PC
+
+1. Open the site in **Edge or Chrome** on the Windows PC that runs FreddieView.
+2. Click **Connect FreddieVision folder** and choose `C:\ProgramData\PTI\FreddieVision`
+   (ProgramData is hidden; paste the path into the folder picker's address bar).
+3. **Close FreddieView before saving settings**, then reopen it; it reads the file at start-up.
+
+Other browsers, or a folder the browser refuses to open: use **Open files instead…**.
+Saving then downloads the edited `visionsettingsWorkingCopy.json` and shows a PowerShell
+command that backs up the current file and copies the download into place.
+
+Editing FreddieView's files is not supported by Primera. Keep the backups, and use
+Undo or FreddieView's Restore Defaults if anything looks wrong. This app does not talk
+to Freddie. Disconnect power before maintenance.
 
 ## GitHub Pages
 
