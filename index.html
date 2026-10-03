@@ -135,15 +135,6 @@ kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #c9d5cb;border-bo
     <input type="file" id="pickOne" accept=".json,.log,application/json,text/plain" hidden>
     <input type="file" id="pickFiles" multiple accept=".json,.log,application/json,text/plain" hidden>
     <div class="row"><button id="openFiles">Select several at once…</button><span class="sub" id="connInfo">Saving downloads an updated settings file and gives you a one-line command to put it in place.</span></div>
-    <details id="advanced"><summary>Advanced: save directly into FreddieView (Edge/Chrome, folder access)</summary>
-      <p class="sub">Some browsers allow connecting the whole folder so saves go straight into FreddieView without a download. If your browser refuses the folder (for example "contains system files"), stay with the file buttons above.</p>
-      <div class="row">
-        <button id="connect">Connect FreddieVision folder</button>
-        <button id="reconnect" hidden>Reconnect saved folder</button>
-        <button id="refresh" hidden>Reload files</button>
-      </div>
-      <p class="sub" id="pathHint">The folder path is copied when you click Connect: in the picker press <kbd>Ctrl</kbd>+<kbd>L</kbd>, paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>, press <kbd>Enter</kbd>, then <b>Select folder</b>.</p>
-    </details>
   </section>
   <section class="card"><div id="cfgPane"><h2>Settings</h2><p class="sub">Load the settings file above to see and change what FreddieView uses.</p></div></section>
   <div class="row" style="justify-content:flex-end;margin-bottom:24px"><button class="primary" id="toCalibrate">Next: record a run →</button></div>
@@ -238,7 +229,7 @@ kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #c9d5cb;border-bo
 
 <dialog id="dlDlg">
   <h2>Copy the edited file into place</h2>
-  <p>Your browser can't write to the FreddieView folder directly, so the edited <code>visionsettingsWorkingCopy.json</code> was downloaded. With FreddieView closed, run this in PowerShell. It first backs up the current file to <code>CalibratorBackups</code>, then copies the download into place:</p>
+  <p>Browsers aren't allowed to write inside <code>C:\ProgramData</code>, so the updated <code>visionsettingsWorkingCopy.json</code> was downloaded. With FreddieView closed, run this in PowerShell. It first backs up the current file to <code>CalibratorBackups</code>, then copies the download into place:</p>
   <pre id="psCmd"></pre>
   <div class="row"><button id="copyPs">Copy command</button><button onclick="document.getElementById('dlDlg').close()">Done</button></div>
   <p class="sub">If the download was renamed (for example <code>visionsettingsWorkingCopy (1).json</code>), adjust the last path or delete older copies first. Reopen FreddieView afterwards.</p>
@@ -250,7 +241,7 @@ kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #c9d5cb;border-bo
   <p>Version 2.1 · Independent companion, not Primera software. No connection to Freddie, no automatic dispensing and no cloud storage. FreddieView on Windows remains the machine controller.</p>
   <details open><summary>What's new in 2.0</summary><ul>
     <li><b>Reads FreddieView's log</b> (<code>C:\ProgramData\PTI\FreddieVision\FreddieVision.log</code>): calibration readings, setting changes, cookies iced, icing used, and machine or camera faults, per day.</li>
-    <li><b>Edits FreddieView's settings</b> (<code>Persistence\visionsettingsWorkingCopy.json</code>): flood and outline pressure, relative icing amount and distance from edge. Only those numbers change; the rest of the file stays byte-for-byte identical. Every save first writes a backup to <code>FreddieVision\CalibratorBackups</code> (and keeps one in this browser), and <i>Undo last save</i> puts it back.</li>
+    <li><b>Edits FreddieView's settings</b> (<code>Persistence\visionsettingsWorkingCopy.json</code>): flood and outline pressure, relative icing amount and distance from edge. Only those numbers change; the rest of the file stays byte-for-byte identical. Saving downloads the updated file with a one-line PowerShell command that first backs up the current file to <code>FreddieVision\CalibratorBackups</code>, then puts the new one in place. <i>Download previous version</i> gives you the file as it was before your last save.</li>
     <li><b>Pressure steps from your own readings.</b> FreddieView reports "too thin" when the reading is above its pass window (default 0.19–0.29) and tells you to decrease pressure, and "too thick" below it. The companion brackets the pressure between the highest that read too thick and the lowest that read too thin, and suggests the midpoint.</li>
     <li><b>Reliability check.</b> If readings contradict each other (for example, too thick at a higher pressure than one that read too thin, or readings over 1"), more calibration won't converge. It then recommends trial &amp; error.</li>
     <li><b>Trial &amp; error mode</b> skips calibration and changes one setting per cookie based on what you see. FreddieView lets you start a job without a passing calibration. Note that it still logs a "Flood Width … @Pressure …" from the last calibration at each job and may use it to plan flood spacing. If spiral spacing looks wrong, run one calibration, accept the result and continue.</li>
@@ -269,7 +260,7 @@ kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #c9d5cb;border-bo
     <li>Quick Start 511510-061225: pp.14–15 (dryness/priming), p.17 (lighting), p.22 (pressure ranges), p.25 (edge/amount), p.27 (dry block/valve).</li>
   </ul></details>
   <p>The bracketing midpoint, ±5 pressure / ±5 % amount / +0.02 in edge steps, the reliability rules and one-variable-at-a-time sequencing are companion heuristics, not manufacturer prescriptions. Save limits (pressure 10–100, amount 30–200 %, edge 0–0.5 in) are guardrails, not approved operating limits.</p>
-  <div class="note">Do not bypass interlocks. Disconnect power before nozzle changes or maintenance. Editing FreddieView's files is unsupported by Primera: keep the backups, and use <i>Undo last save</i> or FreddieView's Restore Defaults if anything looks wrong. Never use this app to assess food safety.</div>
+  <div class="note">Do not bypass interlocks. Disconnect power before nozzle changes or maintenance. Editing FreddieView's files is unsupported by Primera: keep the backups, and use <i>Download previous version</i> or FreddieView's Restore Defaults if anything looks wrong. Never use this app to assess food safety.</div>
   <p><a href="https://www.primera.com/FreddieDownloads" target="_blank" rel="noopener">Official manuals &amp; downloads</a> · <a href="https://customercare.primera.com/portal/en/kb/primera-technology-inc/support/freddie" target="_blank" rel="noopener">Freddie support knowledge base</a></p>
   <button onclick="document.getElementById('about').close()">Close</button>
 </dialog>
@@ -673,7 +664,7 @@ const BEADS = ['unknown', 'good', 'spread', 'ridge', 'broken'];
 const OUTCOMES = ['none', 'good', 'overflow', 'gaps', 'lines', 'spirals', 'excess', 'outlineThin', 'outlineBleed', 'shape', 'machine', 'other'];
 const OUTCOME_TEXT = { none: 'no test', good: 'good', overflow: 'over edge', gaps: 'gaps', lines: 'spiral lines', spirals: 'missing spirals', excess: 'too much', outlineThin: 'thin outline', outlineBleed: 'outline bleeds', shape: 'wrong shape', machine: 'machine error', other: 'other' };
 let state = { version: 2, active: '', sessions: [] };
-const fv = { fileTimes: {}, limitsLoaded: false, root: null, persist: null, mode: 'none', settingsText: null, settings: null, cal: null, limits: { lo: 0.19, hi: 0.29 }, days: [], day: null };
+const fv = { fileTimes: {}, limitsLoaded: false, mode: 'none', settingsText: null, settings: null, cal: null, limits: { lo: 0.19, hi: 0.29 }, days: [], day: null };
 
 function message(s) { $('status').textContent = s; }
 function current() { return state.sessions.find(s => s.id === state.active); }
@@ -740,7 +731,7 @@ function patchButtons(container, patch) {
   }
   if (Object.keys(filePatch).length) {
     const b = document.createElement('button'); b.className = 'primary';
-    b.textContent = !fv.settings ? 'Save to FreddieView (load the settings file in Setup first)' : fv.mode === 'folder' ? 'Save to FreddieView settings' : 'Download updated settings file';
+    b.textContent = !fv.settings ? 'Save to FreddieView (load the settings file in Setup first)' : 'Download updated settings file';
     b.disabled = !fv.settings;
     b.onclick = () => applyPatch(filePatch);
     row.append(b);
@@ -835,8 +826,6 @@ $('file').onchange = async e => {
 const BASE = 'C:\\ProgramData\\PTI\\FreddieVision';
 const PATHS = { settings: BASE + '\\Persistence\\visionsettingsWorkingCopy.json', log: BASE + '\\FreddieVision.log', cal: BASE + '\\Persistence\\FrostingCal.Bipart.json', app: BASE + '\\Persistence\\settings.json' };
 const SLOT_NAMES = { settings: 'settings file', log: 'log', cal: 'last calibration file', app: 'limits file (settings.json)' };
-const hasFS = 'showDirectoryPicker' in window;
-if (!hasFS) $('advanced').hidden = true;
 const copy = t => { try { navigator.clipboard && navigator.clipboard.writeText(t).catch(() => { }); } catch { } };
 
 // Work out what a file is from its contents, so a file chosen in the "wrong" slot still lands in the right place.
@@ -861,7 +850,7 @@ async function readPicked(fileList, wanted) {
     if (wanted && kind !== wanted) notes.push(`${f.name} is FreddieView's ${SLOT_NAMES[kind]}, so it was loaded as that.`);
     got[kind] = text; fv.fileTimes[kind] = f.lastModified;
   }
-  if (Object.keys(got).length) { if (fv.mode !== 'folder') fv.mode = 'files'; ingest(got, notes); }
+  if (Object.keys(got).length) { fv.mode = 'files'; ingest(got, notes); }
   else message(notes.join(' ') || 'No file chosen.');
 }
 
@@ -908,52 +897,6 @@ function renderCalStatus() {
   bar.querySelectorAll('[data-tab]').forEach(a => a.onclick = e => { e.preventDefault(); showTab(a.dataset.tab); });
 }
 
-// ----- Advanced: whole-folder access (File System Access API) -----
-const idb = (() => {
-  const open = () => new Promise((res, rej) => { const q = indexedDB.open('freddie-companion', 1); q.onupgradeneeded = () => q.result.createObjectStore('kv'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
-  const timeout = (p, ms) => Promise.race([p, new Promise(r => setTimeout(() => r(null), ms))]);
-  return {
-    get: k => timeout((async () => { try { const db = await open(); return await new Promise(r => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(null); }); } catch { return null; } })(), 1500),
-    async set(k, v) { try { const db = await open(); db.transaction('kv', 'readwrite').objectStore('kv').put(v, k); } catch { } }
-  };
-})();
-async function readText(dir, name) { try { return await (await (await dir.getFileHandle(name)).getFile()).text(); } catch { return null; } }
-async function useFolder(dir) {
-  let persistDir = null;
-  try { persistDir = await dir.getDirectoryHandle('Persistence'); } catch { }
-  if (!persistDir && await readText(dir, 'visionsettingsWorkingCopy.json') != null) persistDir = dir;
-  if (!persistDir) throw Error(`"${dir.name}" doesn't look like FreddieView's data folder. Choose ${BASE}, or use the file buttons.`);
-  fv.root = dir; fv.persist = persistDir; fv.mode = 'folder';
-  await loadFromFolder();
-}
-async function loadFromFolder() {
-  const [settings, cal, app, log] = await Promise.all([
-    readText(fv.persist, 'visionsettingsWorkingCopy.json'), readText(fv.persist, 'FrostingCal.Bipart.json'),
-    readText(fv.persist, 'settings.json'), fv.root !== fv.persist ? readText(fv.root, 'FreddieVision.log') : Promise.resolve(null)]);
-  ingest({ settings, cal, app, log });
-  $('refresh').hidden = false; $('reconnect').hidden = true; $('pathHint').hidden = true;
-  $('connInfo').textContent = `Connected to folder "${fv.root.name}": saves go straight into FreddieView, with a backup in ${fv.root.name}\\CalibratorBackups.`;
-}
-let savedDir = null;
-if (hasFS) idb.get('dir').then(d => { if (d) { savedDir = d; $('reconnect').hidden = false; } });
-$('connect').onclick = async () => {
-  copy(BASE);
-  const opts = { id: 'freddievision', mode: 'readwrite' };
-  if (savedDir) opts.startIn = savedDir;
-  try { const dir = await window.showDirectoryPicker(opts); await useFolder(dir); idb.set('dir', dir); savedDir = dir; }
-  catch (e) {
-    if (e.name === 'AbortError') message('No folder connected. That\'s fine: use the file buttons above, and saving will download the updated file instead.');
-    else message('Folder access didn\'t work (' + (e.message || e.name) + '). Use the file buttons above instead.');
-  }
-};
-$('reconnect').onclick = async () => {
-  try {
-    if (!savedDir) return;
-    if ((await savedDir.requestPermission({ mode: 'readwrite' })) !== 'granted') throw Error('permission was not granted');
-    await useFolder(savedDir);
-  } catch (e) { message('Could not reconnect: ' + e.message + '. Use the file buttons instead.'); }
-};
-$('refresh').onclick = async () => { try { if (fv.mode === 'folder') await loadFromFolder(); } catch (e) { message(e.message); } };
 
 function ingest({ settings, cal, app, log }, notes = []) {
   const problems = [...notes];
@@ -976,9 +919,9 @@ function renderCfg() {
   if (!fv.settings) { pane.innerHTML = '<h2>Settings</h2><p class="sub">Load the settings file above to see and change what FreddieView uses.</p>' + calHTML(); return; }
   const v = fv.settings.values, F = Core.FIELDS;
   const backups = loadBackups();
-  pane.innerHTML = `<h2>Settings</h2><p class="sub">What FreddieView will use next time it opens. Change a value and save; values you don't change aren't touched.${fv.mode === 'files' ? ' Saving downloads the updated file and shows a one-line command to put it in place.' : ''}</p>
+  pane.innerHTML = `<h2>Settings</h2><p class="sub">What FreddieView will use next time it opens. Change a value and save; values you don't change aren't touched. Saving downloads the updated file and shows a one-line command to put it in place.</p>
     <div class="scroll"><table class="cfg"><thead><tr><th>Setting</th><th>In file now</th><th>New value</th></tr></thead><tbody>${FILE_KEYS.map(k => `<tr><td>${esc(F[k].label)}${F[k].unit ? ' · ' + F[k].unit : ''}</td><td class="num">${v[k] == null ? '<span class="sub">default</span>' : esc(v[k])}</td><td><input data-k="${k}" type="number" min="${F[k].min}" max="${F[k].max}" step="${F[k].step}" value="${v[k] ?? ''}" placeholder="default" aria-label="New ${esc(F[k].label)}"></td></tr>`).join('')}</tbody></table></div>
-    <div class="row"><button class="primary" id="cfgSave" disabled>${fv.mode === 'folder' ? 'Save changes to FreddieView' : 'Download updated settings file'}</button><button id="cfgUndo" ${backups.length ? '' : 'disabled'}>Undo last save</button></div>
+    <div class="row"><button class="primary" id="cfgSave" disabled>Download updated settings file</button><button id="cfgUndo" ${backups.length ? '' : 'disabled'}>Download previous version</button></div>
     <p class="sub" id="cfgHint">"default" means the value isn't in the file and FreddieView uses its built-in default.${backups.length ? ' Last backup: ' + esc(new Date(backups[0].time).toLocaleString()) + '.' : ''}</p>
     <details><summary>Everything in the Settings list (${fv.settings.all.length})</summary><table style="white-space:normal"><tbody>${fv.settings.all.map(x => `<tr><td>${esc(x.name)}</td><td class="num">${esc(typeof x.value === 'number' ? +x.value.toFixed(4) : JSON.stringify(x.value))}</td></tr>`).join('')}</tbody></table></details>` + calHTML();
   const inputs = [...pane.querySelectorAll('input[data-k]')];
@@ -1009,23 +952,7 @@ function confirmApply(rows, note) {
   return new Promise(res => applyResolve = res);
 }
 
-const stamp = () => new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 async function writeSettings(next, before) {
-  if (fv.mode === 'folder') {
-    if (fv.persist.requestPermission && (await fv.persist.requestPermission({ mode: 'readwrite' })) !== 'granted') throw Error('Write permission was not granted.');
-    const onDisk = await readText(fv.persist, 'visionsettingsWorkingCopy.json');
-    if (onDisk !== before) { ingest({ settings: onDisk }); throw Error('The file changed since it was loaded (is FreddieView open?). It has been reloaded; review and save again.'); }
-    const bdir = await fv.root.getDirectoryHandle('CalibratorBackups', { create: true });
-    const bw = await (await bdir.getFileHandle(`visionsettingsWorkingCopy-${stamp()}.json`, { create: true })).createWritable();
-    await bw.write(before); await bw.close();
-    saveBackup(before);
-    const w = await (await fv.persist.getFileHandle('visionsettingsWorkingCopy.json')).createWritable();
-    await w.write(next); await w.close();
-    const verify = await readText(fv.persist, 'visionsettingsWorkingCopy.json');
-    if (verify !== next) throw Error('The file did not read back as written. Check it, or use Undo.');
-    ingest({ settings: verify });
-    return 'Saved to FreddieView settings, with a backup in CalibratorBackups. Reopen FreddieView to load it.';
-  }
   saveBackup(before);
   download('visionsettingsWorkingCopy.json', next);
   $('psCmd').textContent = '$d="$env:ProgramData\\PTI\\FreddieVision"; New-Item -ItemType Directory -Force "$d\\CalibratorBackups" | Out-Null; ' +
@@ -1038,12 +965,12 @@ async function writeSettings(next, before) {
 
 async function applyPatch(patch) {
   try {
-    if (!fv.settings) throw Error('Load the FreddieView settings file first (Connect folder or Open files).');
+    if (!fv.settings) throw Error('Load the FreddieView settings file first (Setup tab).');
     const F = Core.FIELDS, v = fv.settings.values;
     const rows = Object.entries(patch).filter(([k, x]) => FILE_KEYS.includes(k) && x !== v[k]).map(([k, x]) => ({ label: F[k].label, from: v[k], to: x + (F[k].unit ? ' ' + F[k].unit : '') }));
     if (!rows.length) { message('FreddieView already has those values.'); return; }
     const next = Core.patchSettings(fv.settingsText, patch);   // validates ranges and JSON before asking
-    const ok = await confirmApply(rows, fv.mode === 'folder' ? 'The current file is backed up first. Reopen FreddieView afterwards; it reads this file at start-up.' : 'Your browser can\'t write the folder, so the edited file will download with a copy command.');
+    const ok = await confirmApply(rows, 'The updated file downloads, with a one-line command that backs up the current file and puts the new one in place. Reopen FreddieView afterwards; it reads this file at start-up.');
     if (!ok) { message('Nothing saved.'); return; }
     message(await writeSettings(next, fv.settingsText));
   } catch (e) { message('Not saved: ' + e.message); }
@@ -1054,13 +981,13 @@ async function undoLast() {
   if (!b) return;
   try {
     let cur; try { cur = Core.readSettings(b.text).values; } catch { throw Error('The saved backup is not a valid settings file.'); }
-    const ok = await confirmApply(FILE_KEYS.map(k => ({ label: Core.FIELDS[k].label, from: fv.settings?.values[k], to: cur[k] ?? 'default' })), `Restores the file exactly as it was on ${new Date(b.time).toLocaleString()}.`);
+    const ok = await confirmApply(FILE_KEYS.map(k => ({ label: Core.FIELDS[k].label, from: fv.settings?.values[k], to: cur[k] ?? 'default' })), `Downloads the file exactly as it was on ${new Date(b.time).toLocaleString()}, with the same copy command.`);
     if (!ok) return;
     const msg = await writeSettings(b.text, fv.settingsText);
     // writeSettings pushed the pre-undo file on top; drop it and the backup we just restored
     try { localStorage.setItem(CFG_BACKUPS, JSON.stringify(loadBackups().filter((x, i) => i > 0 && x.time !== b.time))); } catch { }
-    renderCfg(); message('Undone. ' + msg);
-  } catch (e) { message('Undo failed: ' + e.message); }
+    renderCfg(); message('Previous version: ' + msg);
+  } catch (e) { message('Could not prepare the previous version: ' + e.message); }
 }
 
 // ---------------- Log pane ----------------

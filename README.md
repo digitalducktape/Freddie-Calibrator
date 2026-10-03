@@ -20,8 +20,8 @@ Open `index.html` or visit the GitHub Pages site. No build step or dependencies.
 - **Edits FreddieView's settings** (`Persistence\visionsettingsWorkingCopy.json`):
   flood pressure, outline pressure, relative icing amount and distance from edge.
   Only those numbers change; every other byte of the file is left as-is. Each save
-  first writes a backup to `FreddieVision\CalibratorBackups` (and keeps one in the
-  browser), and **Undo last save** restores it.
+  comes with a command that backs up the current file to `FreddieVision\CalibratorBackups`
+  first, and **Download previous version** gives back the file from before your last save.
 - **Smarter pressure steps.** FreddieView says "too thin, decrease pressure" when a
   reading is above its pass window (0.19–0.29" by default, read from `settings.json`)
   and "too thick, increase" below it. The companion brackets between the highest
@@ -49,12 +49,12 @@ The app has three tabs: **1 Setup**, **2 Calibrate**, **3 Log insights**.
    the current file to `FreddieVision\CalibratorBackups` and copies the new one into place.
    Reopen FreddieView; it reads the file at start-up.
 
-Advanced: in Edge/Chrome you can instead connect the whole folder (Setup → Advanced) so
-saves go straight into FreddieView without a download. Some browsers refuse that folder;
-the file buttons always work.
+Why a download instead of saving in place: browsers block web pages from writing anywhere
+under `C:\ProgramData` (Chromium's File System Access blocklist), so the companion never
+writes there itself.
 
 Editing FreddieView's files is not supported by Primera. Keep the backups, and use
-Undo or FreddieView's Restore Defaults if anything looks wrong. This app does not talk
+Download previous version or FreddieView's Restore Defaults if anything looks wrong. This app does not talk
 to Freddie. Disconnect power before maintenance.
 
 ## Credits
